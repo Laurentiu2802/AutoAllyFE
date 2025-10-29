@@ -13,7 +13,6 @@ export default function Dashboard({ keycloak }) {
     if (keycloak.authenticated && !hasRegistered.current) {
       hasRegistered.current = true;
       
-      // Register user
       fetch('http://localhost:8081/api/users/register', {
         method: 'POST',
         headers: {
@@ -25,7 +24,6 @@ export default function Dashboard({ keycloak }) {
       .then(data => {
         console.log('User registered:', data);
         setRegistered(true);
-        // Load posts after registration
         loadPosts();
       })
       .catch(error => console.error('Error:', error));
@@ -69,16 +67,16 @@ export default function Dashboard({ keycloak }) {
       if (response.ok) {
         const data = await response.json();
         console.log('Post created:', data);
-        setMessage('✅ Post created successfully!');
+        setMessage('Post created successfully!');
         setPostTitle('');
         setPostContent('');
-        loadPosts(); // Reload posts
+        loadPosts(); 
       } else {
-        setMessage('❌ Failed to create post');
+        setMessage('Failed to create post');
       }
     } catch (error) {
       console.error('Error:', error);
-      setMessage('❌ Error connecting to server');
+      setMessage('Error connecting to server');
     }
   };
 
@@ -96,16 +94,16 @@ export default function Dashboard({ keycloak }) {
       });
 
       if (response.ok || response.status === 204) {
-        setMessage('✅ Post deleted successfully!');
-        loadPosts(); // Reload posts
+        setMessage('Post deleted successfully!');
+        loadPosts(); 
       } else if (response.status === 403) {
-        setMessage('❌ You can only delete your own posts');
+        setMessage('You can only delete your own posts');
       } else {
-        setMessage('❌ Failed to delete post');
+        setMessage('Failed to delete post');
       }
     } catch (error) {
       console.error('Error:', error);
-      setMessage('❌ Error connecting to server');
+      setMessage('Error connecting to server');
     }
   };
 
@@ -113,7 +111,6 @@ export default function Dashboard({ keycloak }) {
     keycloak.logout();
   };
 
-  // Get current user ID from token
   const getCurrentUserId = () => {
     if (keycloak.tokenParsed) {
       return keycloak.tokenParsed.sub;
@@ -123,8 +120,14 @@ export default function Dashboard({ keycloak }) {
 
   return (
     <div className="dashboard-container">
-      <h1 className="dashboard-title">You logged in!</h1>
-      {registered && <p className="success-message">✅ User registered in database</p>}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <h1 className="dashboard-title">You logged in!</h1>
+        <button onClick={handleLogout} className="btn-danger">
+          Logout
+        </button>
+      </div>
+      
+      {registered && <p className="success-message">User registered in database</p>}
       
       <hr className="divider" />
       
@@ -179,12 +182,6 @@ export default function Dashboard({ keycloak }) {
           ))
         )}
       </div>
-      
-      <hr className="divider" />
-      
-      <button onClick={handleLogout} className="btn-danger">
-        Logout
-      </button>
     </div>
   );
 }

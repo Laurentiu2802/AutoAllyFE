@@ -12,13 +12,15 @@ function startApp() {
 }
 
 keycloak.init({
-  onLoad: "login-required",
+  onLoad: "check-sso",  
   checkLoginIframe: false, 
   pkceMethod: "S256",      
 }).then((authenticated) => {
   if (authenticated) {
     startApp(); 
   } else {
-    keycloak.login(); 
+    keycloak.login();
   }
+}).catch((error) => {
+  console.error("Failed to initialize Keycloak:", error);
 });
