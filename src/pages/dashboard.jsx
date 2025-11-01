@@ -80,6 +80,40 @@ export default function Dashboard({ keycloak }) {
     }
   };
 
+  const handleDeleteAccount = async () => {
+  if (!window.confirm(
+    'Are you sure you want to delete your account?\n\n' +
+    'This will:\n' +
+    '- Delete your account permanently\n' +
+    '- Delete all your posts\n' +
+    '- Log you out immediately\n\n' +
+    'This action CANNOT be undone!'
+  )) {
+    return;
+  }
+
+  try {
+    const response = await fetch('http://localhost:8081/api/users/account', {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${keycloak.token}`,
+      },
+    });
+
+    if (response.ok || response.status === 204) {
+      alert('Account deleted successfully. You will be logged out now.');
+      keycloak.logout();
+    } else if (response.status === 404) {
+      alert('Account not found.');
+    } else {
+      alert('Failed to delete account. Please try again later.');
+    }
+  } catch (error) {
+    console.error('Error deleting account:', error);
+    alert('Error connecting to server. Please try again later.');
+  }
+};
+
   const handleDeletePost = async (postId) => {
     if (!window.confirm('Are you sure you want to delete this post?')) {
       return;
@@ -181,6 +215,38 @@ export default function Dashboard({ keycloak }) {
             </div>
           ))
         )}
+      </div>
+
+      <hr className="divider" />
+      
+      <div className="danger-zone" style={{ 
+        marginTop: '50px', 
+        padding: '20px', 
+        border: '2px solid #dc3545', 
+        borderRadius: '8px',
+        backgroundColor: '#fff5f5'
+      }}>
+        <h3 style={{ color: '#dc3545', marginBottom: '10px' }}>⚠️ Danger Zone</h3>
+        <p style={{ marginBottom: '15px', color: '#666' }}>
+          Once you delete your account, there is no going back. Please be certain.
+        </p>
+        <button 
+          onClick={handleDeleteAccount}
+          style={{
+            backgroundColor: '#dc3545',
+            color: 'white',
+            padding: '10px 20px',
+            border: 'none',
+            borderRadius: '5px',
+            cursor: 'pointer',
+            fontSize: '16px',
+            fontWeight: 'bold'
+          }}
+          onMouseOver={(e) => e.target.style.backgroundColor = '#c82333'}
+          onMouseOut={(e) => e.target.style.backgroundColor = '#dc3545'}
+        >
+          Delete My Account
+        </button>
       </div>
     </div>
   );
