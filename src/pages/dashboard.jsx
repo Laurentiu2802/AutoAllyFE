@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import "./dashboard.css";
+import { isMechanic, isCarEnthusiast } from "../utils/auth.js";
+
 
 export default function Dashboard({ keycloak }) {
   const [registered, setRegistered] = useState(false);
@@ -156,6 +158,17 @@ export default function Dashboard({ keycloak }) {
     <div className="dashboard-container">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <h1 className="dashboard-title">You logged in!</h1>
+         {isCarEnthusiast(keycloak) && (
+      <button onClick={() => window.location.href = '/appointments'}>
+        📅 My Appointments
+      </button>
+    )}
+
+    {isMechanic(keycloak) && (
+      <button onClick={() => window.location.href = '/mechanic/appointments'}>
+        📅 Manage Appointments
+      </button>
+    )}
         <button onClick={handleLogout} className="btn-danger">
           Logout
         </button>
