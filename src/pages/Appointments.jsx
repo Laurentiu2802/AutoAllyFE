@@ -33,7 +33,7 @@ export default function Appointments({ keycloak }) {
 
   const loadAppointments = async () => {
     try {
-      const response = await fetch('http://localhost:8081/api/appointments/my-appointments', {
+      const response = await fetch('https://localhost:8443/api/appointments/my-appointments', {
         headers: {
           'Authorization': `Bearer ${keycloak.token}`,
         },
@@ -52,7 +52,7 @@ export default function Appointments({ keycloak }) {
 
   const loadMechanics = async () => {
   try {
-    const response = await fetch('http://localhost:8081/api/users?role=MECHANIC', {
+    const response = await fetch('https://localhost:8443/api/users?role=MECHANIC', {
       headers: {
         'Authorization': `Bearer ${keycloak.token}`,
       },
@@ -73,7 +73,7 @@ export default function Appointments({ keycloak }) {
     setMessage('Creating appointment...');
 
     try {
-      const response = await fetch('http://localhost:8081/api/appointments', {
+      const response = await fetch('https://localhost:8443/api/appointments', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${keycloak.token}`,

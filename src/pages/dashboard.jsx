@@ -15,7 +15,7 @@ export default function Dashboard({ keycloak }) {
     if (keycloak.authenticated && !hasRegistered.current) {
       hasRegistered.current = true;
       
-      fetch('http://localhost:8081/api/users/register', {
+      fetch('https://localhost:8443/api/users/register', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${keycloak.token}`,
@@ -34,7 +34,7 @@ export default function Dashboard({ keycloak }) {
 
   const loadPosts = async () => {
     try {
-      const response = await fetch('http://localhost:8081/api/posts', {
+      const response = await fetch('https://localhost:8443/api/posts', {
         headers: {
           'Authorization': `Bearer ${keycloak.token}`,
         },
@@ -54,7 +54,7 @@ export default function Dashboard({ keycloak }) {
     setMessage('Creating post...');
     
     try {
-      const response = await fetch('http://localhost:8081/api/posts', {
+      const response = await fetch('https://localhost:8443/api/posts', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${keycloak.token}`,
@@ -95,7 +95,7 @@ export default function Dashboard({ keycloak }) {
   }
 
   try {
-    const response = await fetch('http://localhost:8081/api/users/account', {
+    const response = await fetch('https://localhost:8443/api/users/account', {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${keycloak.token}`,
@@ -122,7 +122,7 @@ export default function Dashboard({ keycloak }) {
     }
 
     try {
-      const response = await fetch(`http://localhost:8081/api/posts/${postId}`, {
+      const response = await fetch(`https://localhost:8443/api/posts/${postId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${keycloak.token}`,

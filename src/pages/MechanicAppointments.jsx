@@ -22,7 +22,7 @@ export default function MechanicAppointments({ keycloak }) {
 
   const loadPendingAppointments = async () => {
     try {
-      const response = await fetch('http://localhost:8081/api/appointments/mechanic/pending', {
+      const response = await fetch('https://localhost:8443/api/appointments/mechanic/pending', {
         headers: {
           'Authorization': `Bearer ${keycloak.token}`,
         },
@@ -39,7 +39,7 @@ export default function MechanicAppointments({ keycloak }) {
 
   const loadAllAppointments = async () => {
     try {
-      const response = await fetch('http://localhost:8081/api/appointments/mechanic/all', {
+      const response = await fetch('https://localhost:8443/api/appointments/mechanic/all', {
         headers: {
           'Authorization': `Bearer ${keycloak.token}`,
         },
@@ -58,7 +58,7 @@ export default function MechanicAppointments({ keycloak }) {
 
   const handleStatusUpdate = async (appointmentId, status) => {
     try {
-      const response = await fetch(`http://localhost:8081/api/appointments/${appointmentId}/status`, {
+      const response = await fetch(`https://localhost:8443/api/appointments/${appointmentId}/status`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${keycloak.token}`,
