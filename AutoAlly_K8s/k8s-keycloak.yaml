@@ -1,0 +1,92 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: keycloak-realm
+  namespace: autoally
+data:
+  autoally-realm.json: |
+    {
+      "realm": "AutoAlly",
+      "enabled": true,
+      "clients": [{
+        "clientId": "autoally-rest-api",
+        "enabled": true,
+        "publicClient": true,
+        "directAccessGrantsEnabled": true,
+        "standardFlowEnabled": true,
+        "implicitFlowEnabled": false,
+        "serviceAccountsEnabled": false,
+        "authorizationServicesEnabled": false,
+        "redirectUris": ["*"],
+        "webOrigins": ["*"]
+      }],
+      "users": [],
+      "roles": {
+        "realm": [
+          {"name": "CAR_ENTHUSIAST"},
+          {"name": "MECHANIC"}
+        ]
+      }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak
+  namespace: autoally
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keycloak
+  template:
+    metadata:
+      labels:
+        app: keycloak
+    spec:
+      containers:
+      - name: keycloak
+        image: keycloak/keycloak:26.0.0
+        args: ["start-dev", "--import-realm"]
+        ports:
+        - containerPort: 8080
+        env:
+        - name: KEYCLOAK_ADMIN
+          value: admin
+        - name: KEYCLOAK_ADMIN_PASSWORD
+          value: admin
+        - name: KC_HTTP_PORT
+          value: "8080"
+        - name: KC_HOSTNAME_URL
+          value: http://keycloak:8080
+        - name: KC_HOSTNAME_STRICT
+          value: "false"
+        volumeMounts:
+        - name: realm-config
+          mountPath: /opt/keycloak/data/import
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+      volumes:
+      - name: realm-config
+        configMap:
+          name: keycloak-realm
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak
+  namespace: autoally
+spec:
+  selector:
+    app: keycloak
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+  type: LoadBalancer

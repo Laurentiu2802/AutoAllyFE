@@ -1,0 +1,148 @@
+---
+# User Service Database
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-db
+  namespace: autoally
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-db
+  template:
+    metadata:
+      labels:
+        app: user-db
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:15
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_DB
+          value: user_service_db
+        - name: POSTGRES_USER
+          value: autoally
+        - name: POSTGRES_PASSWORD
+          value: autoally123
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-db
+  namespace: autoally
+spec:
+  selector:
+    app: user-db
+  ports:
+  - port: 5432
+    targetPort: 5432
+  type: ClusterIP
+---
+# Post Service Database
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: post-db
+  namespace: autoally
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: post-db
+  template:
+    metadata:
+      labels:
+        app: post-db
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:15
+        args: ["-c", "max_connections=200"]
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_DB
+          value: post_service_db
+        - name: POSTGRES_USER
+          value: autoally
+        - name: POSTGRES_PASSWORD
+          value: autoally123
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: post-db
+  namespace: autoally
+spec:
+  selector:
+    app: post-db
+  ports:
+  - port: 5432
+    targetPort: 5432
+  type: ClusterIP
+---
+# Appointment Service Database
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: appointment-db
+  namespace: autoally
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: appointment-db
+  template:
+    metadata:
+      labels:
+        app: appointment-db
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:15
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_DB
+          value: appointment_service_db
+        - name: POSTGRES_USER
+          value: autoally
+        - name: POSTGRES_PASSWORD
+          value: autoally123
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: appointment-db
+  namespace: autoally
+spec:
+  selector:
+    app: appointment-db
+  ports:
+  - port: 5432
+    targetPort: 5432
+  type: ClusterIP
