@@ -1,0 +1,23 @@
+﻿apiVersion: 1
+
+datasources:
+  # Prometheus datasource for service monitoring
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: false
+    editable: true
+    jsonData:
+      timeInterval: "15s"
+      queryTimeout: "60s"
+      httpMethod: "POST"
+
+  # InfluxDB datasource for k6 load testing (keep existing)
+  - name: InfluxDB
+    type: influxdb
+    access: proxy
+    url: http://influxdb:8086
+    database: k6
+    isDefault: true
+    editable: true

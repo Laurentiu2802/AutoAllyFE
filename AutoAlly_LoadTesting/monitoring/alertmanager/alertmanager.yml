@@ -1,0 +1,79 @@
+global:
+  resolve_timeout: 5m
+  # Email configuration (optional - uncomment and configure if you want email alerts)
+  # smtp_smarthost: 'smtp.gmail.com:587'
+  # smtp_from: 'your-email@gmail.com'
+  # smtp_auth_username: 'your-email@gmail.com'
+  # smtp_auth_password: 'your-app-password'
+
+# Route configuration
+route:
+  group_by: ['alertname', 'service', 'severity']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 12h
+  receiver: 'console-logger'
+  routes:
+    - match:
+        severity: critical
+      receiver: 'critical-alerts'
+      continue: true
+    - match:
+        severity: warning
+      receiver: 'warning-alerts'
+      continue: true
+    - match:
+        severity: info
+      receiver: 'info-alerts'
+
+# Receivers
+receivers:
+  # Console logger (logs to AlertManager console)
+  - name: 'console-logger'
+    webhook_configs:
+      - url: 'http://localhost:9093/api/v1/alerts'
+        send_resolved: true
+
+  # Critical alerts (you can add email/Slack here)
+  - name: 'critical-alerts'
+    webhook_configs:
+      - url: 'http://localhost:9093/api/v1/alerts'
+        send_resolved: true
+    # Uncomment to enable email notifications:
+    # email_configs:
+    #   - to: 'your-email@example.com'
+    #     subject: 'CRITICAL: {{ .GroupLabels.alertname }} on {{ .GroupLabels.service }}'
+    #     html: |
+    #       <h2>Critical Alert Fired</h2>
+    #       <p><strong>Service:</strong> {{ .GroupLabels.service }}</p>
+    #       <p><strong>Alert:</strong> {{ .GroupLabels.alertname }}</p>
+    #       <p><strong>Summary:</strong> {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}</p>
+    #       <p><strong>Description:</strong> {{ range .Alerts }}{{ .Annotations.description }}{{ end }}</p>
+
+  # Warning alerts
+  - name: 'warning-alerts'
+    webhook_configs:
+      - url: 'http://localhost:9093/api/v1/alerts'
+        send_resolved: true
+
+  # Info alerts
+  - name: 'info-alerts'
+    webhook_configs:
+      - url: 'http://localhost:9093/api/v1/alerts'
+        send_resolved: true
+
+# Inhibition rules (prevent notification spam)
+inhibit_rules:
+  # Don't alert on warning if critical is firing
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'service']
+  
+  # Don't alert on info if warning is firing
+  - source_match:
+      severity: 'warning'
+    target_match:
+      severity: 'info'
+    equal: ['alertname', 'service']

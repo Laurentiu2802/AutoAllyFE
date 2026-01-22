@@ -1,0 +1,146 @@
+groups:
+  - name: autoally_alerts
+    interval: 30s
+    rules:
+      # High CPU Usage
+      - alert: HighCPUUsage
+        expr: process_cpu_usage{application="autoally"} > 0.80
+        for: 5m
+        labels:
+          severity: warning
+          category: performance
+        annotations:
+          summary: "High CPU usage detected on {{ $labels.service }}"
+          description: "{{ $labels.service }} CPU usage is {{ $value | humanizePercentage }} (threshold: 80%)"
+
+      # Critical CPU Usage
+      - alert: CriticalCPUUsage
+        expr: process_cpu_usage{application="autoally"} > 0.90
+        for: 2m
+        labels:
+          severity: critical
+          category: performance
+        annotations:
+          summary: "CRITICAL: Very high CPU usage on {{ $labels.service }}"
+          description: "{{ $labels.service }} CPU usage is {{ $value | humanizePercentage }} (threshold: 90%)"
+
+      # High Memory Usage
+      - alert: HighMemoryUsage
+        expr: (jvm_memory_used_bytes{application="autoally",area="heap"} / jvm_memory_max_bytes{application="autoally",area="heap"}) > 0.85
+        for: 5m
+        labels:
+          severity: warning
+          category: performance
+        annotations:
+          summary: "High memory usage on {{ $labels.service }}"
+          description: "{{ $labels.service }} heap memory usage is {{ $value | humanizePercentage }} (threshold: 85%)"
+
+      # Critical Memory Usage
+      - alert: CriticalMemoryUsage
+        expr: (jvm_memory_used_bytes{application="autoally",area="heap"} / jvm_memory_max_bytes{application="autoally",area="heap"}) > 0.95
+        for: 2m
+        labels:
+          severity: critical
+          category: performance
+        annotations:
+          summary: "CRITICAL: Very high memory usage on {{ $labels.service }}"
+          description: "{{ $labels.service }} heap memory usage is {{ $value | humanizePercentage }} (threshold: 95%)"
+
+      # High Error Rate
+      - alert: HighErrorRate
+        expr: rate(http_server_requests_seconds_count{application="autoally",status=~"5.."}[5m]) / rate(http_server_requests_seconds_count{application="autoally"}[5m]) > 0.05
+        for: 2m
+        labels:
+          severity: warning
+          category: reliability
+        annotations:
+          summary: "High error rate on {{ $labels.service }}"
+          description: "{{ $labels.service }} has {{ $value | humanizePercentage }} error rate (threshold: 5%)"
+
+      # Very High Error Rate
+      - alert: CriticalErrorRate
+        expr: rate(http_server_requests_seconds_count{application="autoally",status=~"5.."}[5m]) / rate(http_server_requests_seconds_count{application="autoally"}[5m]) > 0.10
+        for: 1m
+        labels:
+          severity: critical
+          category: reliability
+        annotations:
+          summary: "CRITICAL: Very high error rate on {{ $labels.service }}"
+          description: "{{ $labels.service }} has {{ $value | humanizePercentage }} error rate (threshold: 10%)"
+
+      # Slow Response Times
+      - alert: SlowResponseTime
+        expr: histogram_quantile(0.95, rate(http_server_requests_seconds_bucket{application="autoally"}[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+          category: performance
+        annotations:
+          summary: "Slow response times on {{ $labels.service }}"
+          description: "{{ $labels.service }} p95 response time is {{ $value }}s (threshold: 2s)"
+
+      # Very Slow Response Times
+      - alert: VerySlowResponseTime
+        expr: histogram_quantile(0.95, rate(http_server_requests_seconds_bucket{application="autoally"}[5m])) > 5
+        for: 2m
+        labels:
+          severity: critical
+          category: performance
+        annotations:
+          summary: "CRITICAL: Very slow response times on {{ $labels.service }}"
+          description: "{{ $labels.service }} p95 response time is {{ $value }}s (threshold: 5s)"
+
+      # Service Down
+      - alert: ServiceDown
+        expr: up{application="autoally"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          category: availability
+        annotations:
+          summary: "Service {{ $labels.service }} is DOWN"
+          description: "{{ $labels.service }} has been unreachable for 1 minute"
+
+      # Database Connection Pool Exhaustion
+      - alert: DatabaseConnectionPoolLow
+        expr: hikaricp_connections_active{application="autoally"} / hikaricp_connections_max{application="autoally"} > 0.80
+        for: 3m
+        labels:
+          severity: warning
+          category: database
+        annotations:
+          summary: "Database connection pool running low on {{ $labels.service }}"
+          description: "{{ $labels.service }} using {{ $value | humanizePercentage }} of connection pool (threshold: 80%)"
+
+      # Database Connection Pool Critical
+      - alert: DatabaseConnectionPoolCritical
+        expr: hikaricp_connections_active{application="autoally"} / hikaricp_connections_max{application="autoally"} > 0.95
+        for: 1m
+        labels:
+          severity: critical
+          category: database
+        annotations:
+          summary: "CRITICAL: Database connection pool nearly exhausted on {{ $labels.service }}"
+          description: "{{ $labels.service }} using {{ $value | humanizePercentage }} of connection pool (threshold: 95%)"
+
+      # High Request Rate
+      - alert: HighRequestRate
+        expr: rate(http_server_requests_seconds_count{application="autoally"}[1m]) > 100
+        for: 5m
+        labels:
+          severity: info
+          category: traffic
+        annotations:
+          summary: "High request rate on {{ $labels.service }}"
+          description: "{{ $labels.service }} receiving {{ $value }} requests/second"
+
+      # JVM Thread Deadlock
+      - alert: JVMThreadDeadlock
+        expr: jvm_threads_deadlocked{application="autoally"} > 0
+        for: 1m
+        labels:
+          severity: critical
+          category: jvm
+        annotations:
+          summary: "JVM thread deadlock detected on {{ $labels.service }}"
+          description: "{{ $labels.service }} has {{ $value }} deadlocked threads"

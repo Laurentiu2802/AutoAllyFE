@@ -1,0 +1,50 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: post-service
+  namespace: autoally
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: post-service
+  template:
+    metadata:
+      labels:
+        app: post-service
+    spec:
+      containers:
+      - name: post-service
+        image: ghcr.io/laurentiu2802/post-service:latest
+        ports:
+        - containerPort: 8082
+        env:
+        - name: SPRING_DATASOURCE_URL
+          value: "jdbc:postgresql://post-db:5432/post_service_db"
+        - name: SPRING_DATASOURCE_USERNAME
+          value: "postgres"
+        - name: SPRING_DATASOURCE_PASSWORD
+          value: "postgres"
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "1000m"
+          limits:
+            memory: "2Gi"
+            cpu: "2000m"
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8082
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 5
+        readinessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8082
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3

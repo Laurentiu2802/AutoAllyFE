@@ -34,7 +34,7 @@ export default function Dashboard({ keycloak }) {
 
   const loadPosts = async () => {
     try {
-      const response = await fetch('URL: https://autoally-post-service-976830011216.europe-west1.run.app', {
+      const response = await fetch('https://localhost:8443/api/posts', {
         headers: {
           'Authorization': `Bearer ${keycloak.token}`,
         },
